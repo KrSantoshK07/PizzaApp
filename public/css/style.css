@@ -1,0 +1,50 @@
+* {
+    margin: 0 auto;
+}
+
+header {
+    display: block;
+    background-color: rgb(106, 244, 244);
+}
+
+img {
+    margin-left: 15px;
+    margin-top: -6px;
+}
+
+a {
+    text-decoration: none;
+    color: rgb(60, 73, 73);
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.sign,
+a {
+    margin-top: 17px;
+}
+
+.main {
+    margin-top: 30px;
+    border-radius: 10px;
+    height: 70vh;
+    background-color: rgb(183, 184, 188);
+}
+
+footer {
+    display: block;
+    margin-top: 20px;
+    background-color: rgb(106, 244, 244);
+    padding: 15px;
+    text-align: center;
+}
+
+.card-img-top {
+    margin-left: 0px;
+    margin-top: 8px;
+}
+
+h4 {
+    text-align: center;
+
+}

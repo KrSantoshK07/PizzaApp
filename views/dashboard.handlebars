@@ -1,0 +1,26 @@
+{{> header1}}
+
+<form action="/user/dashboard/{{id}}" method="get">
+    <div class="container">
+        <div class="row ">
+            {{#each data}}
+            <div class="card col-md-3 mt-3" style="width: 18rem;">
+                <input type="hidden" value="{{_id}}">
+                <img src="/static/images/{{image}}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h4>{{name}}</h4>
+                    <p class="card-text">Some quick example text to build on the card title .</p>
+                    <div class="d-flex">
+                        {{!-- <a href="/user/cart/{{_id}}" class="btn btn-dark" style="margin: 0;">Add to cart</a> --}}
+                        <input type="submit" value="Submit">
+                        <h5 style="margin: 5px 20px; color:red;">₹{{price}}</h5>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</form>
+
+
+{{> footer}}
