@@ -1,12 +1,23 @@
 {{> header1}}
 
-
+{{#if succMsg}}
+<p class="alert alert-success">{{succMsg}}</p>
+{{/if}}
+{{#if errMsg}}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>{{errMsg}}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
 <div class="container mt-5">
+    <h3>Payable ammount: ₹<span class="text-danger">{{total}}</span></h3>
     <label for="">Enter Card Number</label>
-    <input type="text" class="form-control">
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end container mt-3">
-        <input type="submit" class="btn btn-dark" value="Payment">
-    </div>
+    <form action="/user/orderdone/{{userId}}" method="post">
+        <input type="text" class="form-control" name="card">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end container mt-3">
+            <input type="submit" class="btn btn-dark" value="Payment">
+        </div>
+    </form>
 </div>
 
 {{> footer}}

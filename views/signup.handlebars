@@ -4,7 +4,10 @@
 <p class="alert alert-success">{{succMsg}}</p>
 {{/if}}
 {{#if errMsg}}
-<p class="alert alert-danger">{{errMsg}}</p>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>{{errMsg}}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 {{/if}}
 <form action="/user/signup_post" method="post">
     <div class="container my-3">

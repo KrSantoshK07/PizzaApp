@@ -1,12 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { signup_post, activateAcc, login_post, addcart, addcart_get, getAllProduct, getCart } = require('../controller/userControl');
+const { signup_post,
+    activateAcc,
+    login_post,
+    getAllProduct,
+    addtoCart,
+    getCartItem,
+    checkout,
+    orderDone,
+    removeItem,
+    logout,
+    profile
+} = require('../controller/userControl');
 
 const app = express();
 const sessions = require('express-session')
 const cookieParser = require("cookie-parser");
 const userOrder = require('../model/userOrder');
-// const { getAllProduct } = require('../../Mongoose_Assign_4/controllers/controller');
 app.use(cookieParser());
 
 const oneDay = 1000 * 60 * 60 * 24;
@@ -28,49 +38,26 @@ router.get('/activateacc/:id', activateAcc);
 router.get('/login', (req, res) => {
     res.render('login')
 })
-
 router.post('/login_post', login_post);
-
-router.get('/welcome', (req, res) => [
-    res.render('welcome')
-])
-
-// router.get('/dashboard/:id', async (req, res) => {
-//     const id = req.params.id;
-//     var { name, price, image } = req.body;
-//     await userOrder.findOne({ user_id: id })
-//         .then(data => {
-//             // console.log(data.id);
-
-//             res.render('dashboard', {
-//                 id: id,
-//                 name: name,
-//                 price: price,
-//                 image: image
-//             })
-//         })
-//         .catch((err) => {
-//             res.render('dashboard', { errMsg: "something went wrong...." })
-//         })
-// })
-
-// router.get('/dashboard', (req, res) => {
-//     res.redirect('/user/dashboard')
-// })
 
 router.get('/dashboard/:id', getAllProduct)
 
-router.get('/cart/:id', getCart)
+router.post('/addtocart/:id', addtoCart);
 
-// router.get('/cart/:id', addcart_get)
+router.get('/cart/:id', getCartItem);
 
-
-router.get('/checkout', (req, res) => {
+router.get('/checkout/:id', (req, res) => {
+    const uid = req.params.id
     res.render('checkout')
-})
+});
+router.post('/checkout/:id', checkout);
 
-router.post('/addcart_get', addcart)
+router.post('/orderdone/:id', orderDone);
 
+router.post('/remove/:id', removeItem)
 
+router.get('/logout', logout);
+
+router.get('/profile/:id', profile)
 
 module.exports = router

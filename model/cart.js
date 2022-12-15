@@ -1,32 +1,31 @@
 const { default: mongoose } = require('mongoose')
 const model = require('mongoose')
 
-const userModel = new mongoose.Schema({
+const cartModel = new mongoose.Schema({
+    user_id: {
+        type: String,
+        required: true
+    },
+    product_id: {
+        type: String,
+        required: true
+    },
     name: {
         type: String,
         required: true
     },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
+    price: {
         type: String,
         required: true
     },
-    address: {
+    image: {
         type: String,
         required: true
     },
-    contact: {
+    quantity: {
         type: Number,
-        required: true
-    },
-    status: {
-        type: Boolean,
-        default: false
+        default: 1
     }
 })
 
-module.exports = mongoose.model("user", userModel)
+module.exports = mongoose.model("cart", cartModel)

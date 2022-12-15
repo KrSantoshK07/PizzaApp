@@ -7,7 +7,7 @@ const dotenv = require('dotenv').config();
 const PORT = 8899;
 
 const flash = require('express-flash')
-const session = require('express-session')
+const sessions = require('express-session')
 const oneDay = 1000 * 60 * 60 * 24;
 
 mongoose.set('strictQuery', true);
@@ -25,20 +25,22 @@ app.set('views', './views');
 
 app.use('/static', express.static('public'));
 
+//session congig
+app.use(sessions({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: oneDay }
+}))
+
+var session;
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/', mainRoute)
 app.use('/user', userRoute);
 
-//session congig
-app.use(session({
-    secret: process.env.SECRET_KEY,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: oneDay }
-}))
-app.use(flash());
 
 // console.log(process.env.SECRET_KEY)
 app.listen(PORT, (err) => {

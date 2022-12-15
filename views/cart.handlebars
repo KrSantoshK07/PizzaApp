@@ -1,7 +1,17 @@
 {{> header1}}
 
+{{#if succMsg}}
+<div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+        <div class="toast-body">
+            {{succMsg}}
+        </div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+</div>
+{{/if}}
 
-<section>
+<section class="content">
     <table class="table table-hover container mt-5">
         <thead>
             <tr>
@@ -14,13 +24,31 @@
             </tr>
         </thead>
         <tbody>
-
-
+            {{#each data}}
+            <tr>
+                <td>5</td>
+                <td><img src="/static/images/{{image}}" alt="" style="width: 3rem;"></td>
+                <td>{{name}}</td>
+                <td>₹ {{price}}</td>
+                <td>{{quantity}}</td>
+                <form action="/user/remove/{{../userId}}" method="post">
+                    <input type="hidden" name="pid" value="{{_id}}">
+                    {{!-- <td><a href="/user/remove/{{../userId}}" class="btn btn-danger" style="margin: 0;">Remove</a>
+                    </td> --}}
+                    <td><input type="submit" class="btn btn-danger" value="Remove"></td>
+                </form>
+            </tr>
+            {{/each}}
         </tbody>
     </table>
-    {{!-- <h5 style="margin-left: 32%;">Grand Total: 345</h5> --}}
+    <h5 style="margin-left: 32%;">Grand Total: ₹<span class="text-danger">{{total}}</span></h5>
     <div class="container">
-        <a href="/user/checkout" class="btn bg-dark text-white" style="margin-left: 85%;">Checkout here-></a>
+        <form action="/user/checkout/{{userId}}" method="post">
+            <input type="hidden" name="total" value="{{total}}">
+            <input type="submit" class="btn btn-dark text-white" style="margin-left: 85%;" value="Checkout here->">
+        </form>
+        {{!-- <a href="/user/checkout/{{userId}}" class="btn bg-dark text-white" style="margin-left: 85%;">Checkout
+            here-></a> --}}
     </div>
 </section>
 

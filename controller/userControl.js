@@ -10,6 +10,7 @@ const saltrounds = 10;
 
 const userOrder = require('../model/userOrder');
 const product = require('../../Mongoose_Assign_4/model/product')
+const cart = require('../model/cart')
 
 let transporter = nodemailer.createTransport({
     service: "gmail",
@@ -77,7 +78,7 @@ function signup_post(req, res) {
                 res.render('signup', { errMsg: "Passwords not matched!" })
             }
         } else {
-            res.render('register', { errMsg: "Please give infomation in right way!" })
+            res.render('signup', { errMsg: "Please give infomation in right way!" })
         }
     }
 }
@@ -86,19 +87,19 @@ async function activateAcc(req, res) {
     let id = req.params.id;
     await userModel.updateOne({ _id: id }, { $set: { status: true } })
         .then(data => {
-            res.render('activate', {
-                name: data.name
-            })
+            userModel.findOne({ _id: id })
+                .then(data1 => {
+                    res.render('activate', { name: data1.name })
+                })
         })
         .catch(err => {
             res.send("Some Thing Went Wrong")
         })
 }
 
-var session;
-var data;
 async function login_post(req, res) {
     var { email, pass } = req.body;
+    // console.log(session);
 
     email = email.toString().trim();
     pass = pass.toString().trim();
@@ -111,11 +112,10 @@ async function login_post(req, res) {
                 .then(data => {
                     if (data.status == true) {
                         if (bcrypt.compareSync(pass, data.password)) {
-                            // req.session.user_id = data._id;
-                            // res.render('welcome')
-                            // res.redirect('/user/dashboard')
+                            session = req.session;
+                            session.email = email;
+
                             res.redirect(`/user/dashboard/${data.id}`)
-                            // return res.redirect('/user/dashboard')
                         }
                         else {
                             return res.render("login", { errMsg: "Wrong username or password!" });
@@ -136,85 +136,143 @@ async function login_post(req, res) {
     }
 }
 
-function addcart(req, res) {
-    var { id, name, price, image } = req.body;
-    // const uid = req.params.id;
-    // res.send(image)
-    userOrder.create({ user_id: id, name: name, price: price, image: image })
-        .then(data => {
-            res.render('dashboard', {
-                id: data.user_id,
-                name: data.name,
-                price: data.price,
-                image: '/static/images/' + data.image
-            })
-        })
-        .catch((error) => {
-            res.render('dashboard', { errMsg: "Something went wrong!!!!!!!" })
-        })
-}
-
-async function addcart_get(req, res) {
-    const id = req.params.id;
-    await userOrder.findOne({ user_id: id })
-        .then(data => {
-            // res.render('cart', { item: data.map(data => data.toJSON()) })
-            res.render('cart', {
-                // data: data,
-                name: data.name,
-                price: data.price,
-                image: '/static/images/' + data.image
-            })
-        })
-    // .catch((err) => {
-    //     res.render('dashboard', { errMsg: "Something went wrong" })
-    // })
-    // res.send(id)
-}
-
-// function getAllProduct(req, res) {
-//     proModel.find({}, (err, data) => {
-//         console.log(data);
-//         res.render('dashboard', {
-//             // pdata: data.map(data => data.toJSON())
-//             pdata: data
-//         })
-//     })
-// }
-
-// async function getAllProduct(req, res) {
-//     try {
-//         const data = await proModel.find();
-//         res.status(200).json(data)
-//     }
-//     catch (error) {
-//         res.status(400).json({ "message": error.message })
-//     }
-// }
-
 function getAllProduct(req, res) {
-    proModel.find({}, (err, data) => {
-        if (err) { res.send("Something went wrong") }
-        else {
-            res.render('dashboard', { data: data.map(data => data.toJSON()) })
+    var uid = req.params.id;
+    if (uid) {
+        proModel.find({}, (err, data) => {
+            if (err) { res.send("Something went wrong") }
+            else {
+                res.render('dashboard', { data: data.map(data => data.toJSON()), userId: uid })
+            }
+        })
+    } else {
+        res.render('login');
+    }
+}
+
+async function addtoCart(req, res) {
+    var uid = req.params.id;
+    var { pid, name, price, image } = req.body;
+
+    const isData = await cart.findOne({ product_id: pid });
+    let isError = true;
+
+    if (isData) {
+        const updateisData = await cart.updateOne({ product_id: pid }, { $inc: { quantity: 1 } });
+        if (updateisData) {
+            isError = false;
         }
-    })
+    } else {
+        const cartObj = { user_id: uid, product_id: pid, name: name, price: price, image: image }
+        const insertisData = new cart(cartObj).save();
+        if (insertisData) {
+            isError = false;
+        }
+    }
+    if (!isError) {
+        res.write(`<script>alert("Data added")</script>;<script>location.assign("/user/dashboard/${uid}")</script>;`);
+        // res.redirect(`/user/dashboard/${uid}`)
+        // res.render('dashboard', { uid: uid, succMsg: "Item added" })
+    } else {
+        res.write(`<script>alert("Something went wrong")</script>;<script>location.assign("/user/dashboard/${uid}")</script>;`);
+    }
 }
 
-async function getCart(req, res) {
-    const uid = req.params.id;
-    // res.write(`<script>alert("Data added")</script>;<script>location.assign("/user/dashboard/:id")</script>;`);
-    var { name, price, image } = req.body;
-    console.log(uid);
-    await orderModel.create({ user_id: uid, name: name, price: price, image: image })
+async function getCartItem(req, res) {
+    const uid = req.params.id
+    await cart.find({ user_id: uid })
         .then(data => {
-            res.write(`<script>alert("Data added")</script>;<script>location.assign("/user/dashboard/:id")</script>;`);
-            res.render('cart')
-        })
-        .catch(err => {
-            console.log('catch part.......................................');
-            res.redirect(`/user/dashboard/${{ uid }}`);
+            var total = 0;
+            data.map((element) => {
+                total = total + (element.quantity * element.price)
+            })
+            res.render('cart', { data: data.map(data => data.toJSON()), userId: uid, total: total })
         })
 }
 
-module.exports = { signup_post, activateAcc, login_post, addcart, addcart_get, getAllProduct, getCart }
+async function checkout(req, res) {
+    const uid = req.params.id;
+    var total = req.body.total;
+
+    cart.find({ user_id: uid })
+        .then(data => {
+            var total = 0;
+            data.map((element) => {
+                total = total + (element.quantity * element.price)
+            })
+            res.render('checkout', { userId: uid, total: total })
+        })
+}
+
+function orderDone(req, res) {
+    var cardnumber = req.body.card;
+    const uid = req.params.id;
+    const regCardNum = new RegExp("^[7-9][0-9]{15}$");
+
+    if (cardnumber == '') {
+        cart.find({ user_id: uid })
+            .then(data => {
+                var total = 0;
+                data.map((element) => {
+                    total = total + (element.quantity * element.price)
+                })
+                res.render('checkout', { userId: uid, total: total, errMsg: "Field missing!" })
+            })
+    } else {
+        if (regCardNum.test(cardnumber)) {
+            res.render('orderdone', { userId: uid });
+        }
+    }
+}
+
+function removeItem(req, res) {
+    const uid = req.params.id;
+    var pid = req.body.pid;
+    cart.deleteOne({ _id: pid })
+        .then(data => {
+            cart.find({ user_id: uid })
+                .then(data => {
+                    var total = 0;
+                    data.map((element) => {
+                        total = total + (element.quantity * element.price)
+                    })
+                    res.render('cart', { data: data.map(data => data.toJSON()), userId: uid, total: total })
+                })
+        })
+        .catch(error => {
+            res.render('cart', { errMsg: "Something went wrong!" })
+        })
+}
+
+function logout(req, res) {
+    req.session.destroy();
+    res.render('home');
+}
+
+function profile(req, res) {
+    const uid = req.params.id;
+    userModel.findOne({ uid })
+        .then(data => {
+            res.render('profile', {
+                userId: uid,
+                name: data.name,
+                email: data.email,
+                contact: data.contact,
+                address: data.address
+            })
+        })
+}
+
+module.exports = {
+    signup_post,
+    activateAcc,
+    login_post,
+    getAllProduct,
+    addtoCart,
+    getCartItem,
+    checkout,
+    orderDone,
+    removeItem,
+    logout,
+    profile
+}

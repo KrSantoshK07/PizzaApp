@@ -21,13 +21,13 @@
             <a href=" /">
                 <img src="/static/images/pizza-logo.png" style="height: 70px; width:70px;" alt="image">
             </a>
-            <a href="/user/dashboard">Dashboard</a>
+            <a href="/user/dashboard/{{userId}}">Dashboard</a>
         </div>
         <div class="sign">
-            <a href="#">Menu</a>
-            <a href="/user/cart">Cart</a>
-            <a href="#">Profile</a>
-            <a href="/user/login" role="button" class="btn btn-outline-success" style="margin: 0px;">Logout</a>
+            {{!-- <a href="#">Menu</a> --}}
+            <a href="/user/cart/{{userId}}">Cart</a>
+            <a href="/user/profile/{{userId}}">Profile</a>
+            <a href="/user/logout" role="button" class="btn btn-outline-success" style="margin: 0px;">Logout</a>
 
         </div>
     </div>
