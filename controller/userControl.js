@@ -153,12 +153,11 @@ function getAllProduct(req, res) {
 async function addtoCart(req, res) {
     var uid = req.params.id;
     var { pid, name, price, image } = req.body;
-
-    const isData = await cart.findOne({ product_id: pid });
+    const isData = await cart.findOne({ user_id: uid, product_id: pid });
     let isError = true;
 
     if (isData) {
-        const updateisData = await cart.updateOne({ product_id: pid }, { $inc: { quantity: 1 } });
+        const updateisData = await cart.updateOne({ user_id: uid, product_id: pid }, { $inc: { quantity: 1 } });
         if (updateisData) {
             isError = false;
         }
@@ -251,7 +250,7 @@ function logout(req, res) {
 
 function profile(req, res) {
     const uid = req.params.id;
-    userModel.findOne({ uid })
+    userModel.findOne({ _id: uid })
         .then(data => {
             res.render('profile', {
                 userId: uid,
