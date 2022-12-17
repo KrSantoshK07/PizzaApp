@@ -11,8 +11,8 @@ const sessions = require('express-session')
 const oneDay = 1000 * 60 * 60 * 24;
 
 mongoose.set('strictQuery', true);
-// mongoose.connect(process.env.DATABASE_URL)
-mongoose.connect('mongodb://127.0.0.1:27017/Pizza')
+mongoose.connect(process.env.DATABASE_URL)
+// mongoose.connect('mongodb://127.0.0.1:27017/Pizza')
     .then(res => console.log("Database Connected..."))
     .catch(err => console.log("Database error" + err))
 
